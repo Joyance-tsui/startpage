@@ -229,10 +229,10 @@
                         searchUrl = `https://www.baidu.com/s?wd=${query}`;
                         break;
                     case 'wz':
-                        searchUrl = `https://zh.wikipedia.org/wiki/${query}`;
+                        searchUrl = `https://zh.wikipedia.org/w/index.php?search=${query}`;
                         break;
                     case 'wzm':
-                        searchUrl = `https://w.joyance.page/wiki/${query}`;
+                        searchUrl = `https://w.joyance.page/w/index.php?search=${query}`;
                         break;
                     case 'google':
                         searchUrl = `https://www.google.com/search?q=${query}`;
@@ -244,7 +244,7 @@
                         searchUrl = `https://duckduckgo.com/?q=${query}`;
                         break;
                     case 'wikipedia':
-                        searchUrl = `https://en.wikipedia.org/wiki/=${query}`;
+                        searchUrl = `https://en.wikipedia.org/w/index.php?search=${query}`;
                         break;
                     case 'custom':
                         searchUrl = customSearchUrl.value + query;
