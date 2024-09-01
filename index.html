@@ -109,9 +109,12 @@
             <label for="search-engine">搜索引擎:</label>
             <select id="search-engine">
                 <option value="baidu">百度</option>
+                <option value="wz">中文维基百科</option>
+                <option value="wzm">中文维基百科（镜像）</option>
                 <option value="google">Google</option>
                 <option value="bing">Bing</option>
                 <option value="duckduckgo">DuckDuckGo</option>
+                <option value="wikipedia">Wikipedia</option>
                 <option value="custom">自定义</option>
             </select>
         </div>
@@ -135,7 +138,7 @@
         </div>
         <div class="setting-item">
             <label for="search-size">搜索框大小:</label>
-            <input type="range" id="search-size" min="200" max="500" step="10" value="300">
+            <input type="range" id="search-size" min="200" max="1000" step="10" value="500">
         </div>
     </div>
 
@@ -225,6 +228,12 @@
                     case 'baidu':
                         searchUrl = `https://www.baidu.com/s?wd=${query}`;
                         break;
+                    case 'wz':
+                        searchUrl = `https://zh.wikipedia.org/wiki/${query}`;
+                        break;
+                    case 'wzm':
+                        searchUrl = `https://w.joyance.page/wiki/${query}`;
+                        break;
                     case 'google':
                         searchUrl = `https://www.google.com/search?q=${query}`;
                         break;
@@ -233,6 +242,9 @@
                         break;
                     case 'duckduckgo':
                         searchUrl = `https://duckduckgo.com/?q=${query}`;
+                        break;
+                    case 'wikipedia':
+                        searchUrl = `https://en.wikipedia.org/wiki/=${query}`;
                         break;
                     case 'custom':
                         searchUrl = customSearchUrl.value + query;
