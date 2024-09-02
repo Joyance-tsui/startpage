@@ -122,11 +122,32 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            position: relative;
         }
 
         .site-button:hover {
             background-color: var(--text-color);
             color: var(--bg-color);
+        }
+
+        .delete-site {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+        }
+
+        .site-button:hover .delete-site {
+            display: block;
         }
 
         #favorite-sites-container {
@@ -198,7 +219,7 @@
         </select>
 
         <label for="search-size">搜索框大小：</label>
-        <input type="range" id="search-size" min="100" max="1000" step="10" value="500">
+        <input type="range" id="search-size" min="200" max="500" step="10" value="300">
 
         <label for="fullscreen">全屏模式：</label>
         <input type="checkbox" id="fullscreen">
@@ -237,7 +258,7 @@
             customSearchUrl.value = savedSettings.customSearchUrl || '';
             language.value = savedSettings.language || 'zh-CN';
             theme.value = savedSettings.theme || 'light';
-            searchSize.value = savedSettings.searchSize || '500';
+            searchSize.value = savedSettings.searchSize || '300';
             fullscreenCheckbox.checked = savedSettings.fullscreen || false;
 
             updateCustomSearchVisibility();
@@ -321,7 +342,8 @@
                     favoriteSites: '常用网站',
                     siteName: '网站名称：',
                     siteUrl: '网站 URL：',
-                    addSite: '添加网站'
+                    addSite: '添加网站',
+                    deleteSite: '删除'
                 },
                 'en': {
                     searchPlaceholder: 'Search...',
@@ -337,7 +359,8 @@
                     favoriteSites: 'Favorite Sites',
                     siteName: 'Site Name:',
                     siteUrl: 'Site URL:',
-                    addSite: 'Add Site'
+                    addSite: 'Add Site',
+                    deleteSite: 'Delete'
                 },
                 'fr': {
                     searchPlaceholder: 'Rechercher...',
@@ -353,7 +376,8 @@
                     favoriteSites: 'Sites favoris',
                     siteName: 'Nom du site :',
                     siteUrl: 'URL du site :',
-                    addSite: 'Ajouter un site'
+                    addSite: 'Ajouter un site',
+                    deleteSite: 'Supprimer'
                 }
             };
 
@@ -376,6 +400,11 @@
             const themeOptions = document.querySelectorAll('#theme option');
             themeOptions[0].textContent = t.lightMode;
             themeOptions[1].textContent = t.darkMode;
+
+            // 更新删除按钮文本
+            document.querySelectorAll('.delete-site').forEach(button => {
+                button.textContent = t.deleteSite;
+            });
         }
 
         // 执行搜索
@@ -417,11 +446,21 @@
         function loadFavoriteSites() {
             const sites = JSON.parse(localStorage.getItem('favoriteSites')) || [];
             favoriteSites.innerHTML = '';
-            sites.forEach(site => {
+            sites.forEach((site, index) => {
                 const button = document.createElement('button');
                 button.textContent = site.name;
                 button.className = 'site-button';
                 button.addEventListener('click', () => window.location.href = site.url);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.className = 'delete-site';
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteFavoriteSite(index);
+                });
+
+                button.appendChild(deleteButton);
                 favoriteSites.appendChild(button);
             });
         }
@@ -438,6 +477,14 @@
                 siteName.value = '';
                 siteUrl.value = '';
             }
+        }
+
+        // 删除常用网站
+        function deleteFavoriteSite(index) {
+            const sites = JSON.parse(localStorage.getItem('favoriteSites')) || [];
+            sites.splice(index, 1);
+            localStorage.setItem('favoriteSites', JSON.stringify(sites));
+            loadFavoriteSites();
         }
 
         // 事件监听器
