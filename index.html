@@ -450,7 +450,7 @@ function isInChina() {
                     siteName: '网站名称：',
                     siteUrl: '网站 URL：',
                     addSite: '添加网站',
-                    deleteSite: '删除',
+                    deleteSite: 'X',
                     resetSettings: '恢复默认设置'
                 },
                 'en': {
@@ -472,7 +472,7 @@ function isInChina() {
                     siteName: 'Site Name:',
                     siteUrl: 'Site URL:',
                     addSite: 'Add Site',
-                    deleteSite: 'Delete',
+                    deleteSite: 'X',
                     resetSettings: 'Reset to Default Settings'
                 },
                 'fr': {
@@ -494,7 +494,7 @@ function isInChina() {
                     siteName: 'Nom du site :',
                     siteUrl: 'URL du site :',
                     addSite: 'Ajouter un site',
-                    deleteSite: 'Supprimer',
+                    deleteSite: 'X',
                     resetSettings: 'Restaurer les paramètres par défaut'
                 }
             };
@@ -576,7 +576,7 @@ function isInChina() {
                 button.addEventListener('click', () => window.location.href = site.url);
 
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = '删除';
+                deleteButton.textContent = 'X';
                 deleteButton.className = 'delete-site';
                 deleteButton.addEventListener('click', (e) => {
                     e.stopPropagation();
