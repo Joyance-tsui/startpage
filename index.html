@@ -377,11 +377,17 @@ function isInChina() {
       });
   });
 }
-        
-        // 获取默认搜索引擎
-        function getDefaultSearchEngine() {
-            return isInChina() ? 'dm' : 'duckduckgo';
-        }
+
+// 修改后的获取默认搜索引擎函数
+async function getDefaultSearchEngine() {
+  try {
+    const inChina = await isInChina();
+    return inChina ? 'dm' : 'duckduckgo';
+  } catch (error) {
+    console.error('Error getting default search engine:', error);
+    return 'duckduckgo'; // 发生错误时返回默认值
+  }
+}
 
         // 更新自定义搜索 URL 输入框的可见性
         function updateCustomSearchVisibility() {
