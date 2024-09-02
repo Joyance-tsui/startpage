@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>starepage</title>
+    <title>起始页</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -174,6 +174,28 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #reset-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-picker input[type="color"] {
+            width: 50px;
+            height: 30px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +218,7 @@
             <option value="duckduckgo">DuckDuckGo</option>
             <option value="wikipedia">Wikipedia</option>
             <option value="wz">中文维基百科</option>
-            <option value="wzm">中文维基百科（镜像）</option>
+            <option value="wzm">维基百科镜像</option>
             <option value="custom">自定义</option>
         </select>
 
@@ -216,7 +238,28 @@
         <select id="theme">
             <option value="light">亮色模式</option>
             <option value="dark">暗色模式</option>
+            <option value="custom">自定义</option>
         </select>
+
+        <div id="custom-colors" style="display: none;">
+            <label for="bg-color">背景颜色：</label>
+            <div class="color-picker">
+                <input type="color" id="bg-color">
+                <input type="text" id="bg-color-text">
+            </div>
+
+            <label for="text-color">文字颜色：</label>
+            <div class="color-picker">
+                <input type="color" id="text-color">
+                <input type="text" id="text-color-text">
+            </div>
+
+            <label for="search-bg-color">搜索框背景颜色：</label>
+            <div class="color-picker">
+                <input type="color" id="search-bg-color">
+                <input type="text" id="search-bg-color-text">
+            </div>
+        </div>
 
         <label for="search-size">搜索框大小：</label>
         <input type="range" id="search-size" min="100" max="1000" step="10" value="500">
@@ -232,6 +275,8 @@
             <input type="text" id="site-url">
             <button id="add-site-button">添加网站</button>
         </div>
+
+        <button id="reset-button">恢复默认设置</button>
     </div>
 
     <script>
@@ -244,24 +289,51 @@
         const customSearchUrl = document.getElementById('custom-search-url');
         const language = document.getElementById('language');
         const theme = document.getElementById('theme');
+        const customColors = document.getElementById('custom-colors');
+        const bgColor = document.getElementById('bg-color');
+        const bgColorText = document.getElementById('bg-color-text');
+        const textColor = document.getElementById('text-color');
+        const textColorText = document.getElementById('text-color-text');
+        const searchBgColor = document.getElementById('search-bg-color');
+        const searchBgColorText = document.getElementById('search-bg-color-text');
         const searchSize = document.getElementById('search-size');
         const fullscreenCheckbox = document.getElementById('fullscreen');
         const favoriteSites = document.getElementById('favorite-sites');
         const siteName = document.getElementById('site-name');
         const siteUrl = document.getElementById('site-url');
         const addSiteButton = document.getElementById('add-site-button');
+        const resetButton = document.getElementById('reset-button');
+
+        const defaultSettings = {
+            searchEngine: getDefaultSearchEngine(),
+            customSearchUrl: '',
+            language: 'zh-CN',
+            theme: 'light',
+            bgColor: '#ffffff',
+            textColor: '#000000',
+            searchBgColor: '#f0f0f0',
+            searchSize: '500',
+            fullscreen: false
+        };
 
         // 加载保存的设置
         function loadSettings() {
-            const savedSettings = JSON.parse(localStorage.getItem('startPageSettings')) || {};
-            searchEngine.value = savedSettings.searchEngine || getDefaultSearchEngine();
+            const savedSettings = JSON.parse(localStorage.getItem('startPageSettings')) || defaultSettings;
+            searchEngine.value = savedSettings.searchEngine;
             customSearchUrl.value = savedSettings.customSearchUrl || '';
-            language.value = savedSettings.language || 'zh-CN';
-            theme.value = savedSettings.theme || 'light';
-            searchSize.value = savedSettings.searchSize || '500';
-            fullscreenCheckbox.checked = savedSettings.fullscreen || false;
+            language.value = savedSettings.language;
+            theme.value = savedSettings.theme;
+            bgColor.value = savedSettings.bgColor;
+            bgColorText.value = savedSettings.bgColor;
+            textColor.value = savedSettings.textColor;
+            textColorText.value = savedSettings.textColor;
+            searchBgColor.value = savedSettings.searchBgColor;
+            searchBgColorText.value = savedSettings.searchBgColor;
+            searchSize.value = savedSettings.searchSize;
+            fullscreenCheckbox.checked = savedSettings.fullscreen;
 
             updateCustomSearchVisibility();
+            updateCustomColorsVisibility();
             applyTheme();
             applySearchSize();
             applyLanguage();
@@ -276,6 +348,9 @@
                 customSearchUrl: customSearchUrl.value,
                 language: language.value,
                 theme: theme.value,
+                bgColor: bgColor.value,
+                textColor: textColor.value,
+                searchBgColor: searchBgColor.value,
                 searchSize: searchSize.value,
                 fullscreen: fullscreenCheckbox.checked
             };
@@ -299,9 +374,23 @@
             customSearchContainer.style.display = searchEngine.value === 'custom' ? 'block' : 'none';
         }
 
+        // 更新自定义颜色选择器的可见性
+        function updateCustomColorsVisibility() {
+            customColors.style.display = theme.value === 'custom' ? 'block' : 'none';
+        }
+
         // 应用主题
         function applyTheme() {
-            document.body.classList.toggle('dark-mode', theme.value === 'dark');
+            if (theme.value === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else if (theme.value === 'light') {
+                document.body.classList.remove('dark-mode');
+            } else if (theme.value === 'custom') {
+                document.body.classList.remove('dark-mode');
+                document.documentElement.style.setProperty('--bg-color', bgColor.value);
+                document.documentElement.style.setProperty('--text-color', textColor.value);
+                document.documentElement.style.setProperty('--search-bg', searchBgColor.value);
+            }
         }
 
         // 应用搜索框大小
@@ -337,13 +426,18 @@
                     theme: '主题：',
                     lightMode: '亮色模式',
                     darkMode: '暗色模式',
+                    customMode: '自定义',
+                    bgColor: '背景颜色：',
+                    textColor: '文字颜色：',
+                    searchBgColor: '搜索框背景颜色：',
                     searchSize: '搜索框大小：',
                     fullscreen: '全屏模式：',
                     favoriteSites: '常用网站',
                     siteName: '网站名称：',
                     siteUrl: '网站 URL：',
-                    addSite: '添加网站', 
-                    deleteSite: 'X'
+                    addSite: '添加网站',
+                    deleteSite: '删除',
+                    resetSettings: '恢复默认设置'
                 },
                 'en': {
                     searchPlaceholder: 'Search...',
@@ -354,13 +448,18 @@
                     theme: 'Theme:',
                     lightMode: 'Light Mode',
                     darkMode: 'Dark Mode',
+                    customMode: 'Custom',
+                    bgColor: 'Background Color:',
+                    textColor: 'Text Color:',
+                    searchBgColor: 'Search Box Background Color:',
                     searchSize: 'Search Box Size:',
                     fullscreen: 'Fullscreen Mode:',
                     favoriteSites: 'Favorite Sites',
                     siteName: 'Site Name:',
                     siteUrl: 'Site URL:',
                     addSite: 'Add Site',
-                    deleteSite: 'X'
+                    deleteSite: 'Delete',
+                    resetSettings: 'Reset to Default Settings'
                 },
                 'fr': {
                     searchPlaceholder: 'Rechercher...',
@@ -371,13 +470,18 @@
                     theme: 'Thème :',
                     lightMode: 'Mode clair',
                     darkMode: 'Mode sombre',
+                    customMode: 'Personnalisé',
+                    bgColor: 'Couleur de fond :',
+                    textColor: 'Couleur du texte :',
+                    searchBgColor: 'Couleur de fond de la barre de recherche :',
                     searchSize: 'Taille de la barre de recherche :',
                     fullscreen: 'Mode plein écran :',
                     favoriteSites: 'Sites favoris',
                     siteName: 'Nom du site :',
                     siteUrl: 'URL du site :',
                     addSite: 'Ajouter un site',
-                    deleteSite: 'X'
+                    deleteSite: 'Supprimer',
+                    resetSettings: 'Restaurer les paramètres par défaut'
                 }
             };
 
@@ -390,16 +494,21 @@
             document.querySelector('label[for="custom-search-url"]').textContent = t.customSearchUrl;
             document.querySelector('label[for="language"]').textContent = t.language;
             document.querySelector('label[for="theme"]').textContent = t.theme;
+            document.querySelector('label[for="bg-color"]').textContent = t.bgColor;
+            document.querySelector('label[for="text-color"]').textContent = t.textColor;
+            document.querySelector('label[for="search-bg-color"]').textContent = t.searchBgColor;
             document.querySelector('label[for="search-size"]').textContent = t.searchSize;
             document.querySelector('label[for="fullscreen"]').textContent = t.fullscreen;
             document.querySelector('#favorite-sites-container h3').textContent = t.favoriteSites;
             document.querySelector('label[for="site-name"]').textContent = t.siteName;
             document.querySelector('label[for="site-url"]').textContent = t.siteUrl;
             addSiteButton.textContent = t.addSite;
+            resetButton.textContent = t.resetSettings;
 
             const themeOptions = document.querySelectorAll('#theme option');
             themeOptions[0].textContent = t.lightMode;
             themeOptions[1].textContent = t.darkMode;
+            themeOptions[2].textContent = t.customMode;
 
             // 更新删除按钮文本
             document.querySelectorAll('.delete-site').forEach(button => {
@@ -487,6 +596,14 @@
             loadFavoriteSites();
         }
 
+        // 恢复默认设置
+        function resetToDefaultSettings() {
+            localStorage.removeItem('startPageSettings');
+            localStorage.removeItem('favoriteSites');
+            loadSettings();
+            loadFavoriteSites();
+        }
+
         // 事件监听器
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -518,6 +635,43 @@
         });
 
         theme.addEventListener('change', () => {
+            updateCustomColorsVisibility();
+            applyTheme();
+            saveSettings();
+        });
+
+        bgColor.addEventListener('input', () => {
+            bgColorText.value = bgColor.value;
+            applyTheme();
+            saveSettings();
+        });
+
+        bgColorText.addEventListener('input', () => {
+            bgColor.value = bgColorText.value;
+            applyTheme();
+            saveSettings();
+        });
+
+        textColor.addEventListener('input', () => {
+            textColorText.value = textColor.value;
+            applyTheme();
+            saveSettings();
+        });
+
+        textColorText.addEventListener('input', () => {
+            textColor.value = textColorText.value;
+            applyTheme();
+            saveSettings();
+        });
+
+        searchBgColor.addEventListener('input', () => {
+            searchBgColorText.value = searchBgColor.value;
+            applyTheme();
+            saveSettings();
+        });
+
+        searchBgColorText.addEventListener('input', () => {
+            searchBgColor.value = searchBgColorText.value;
             applyTheme();
             saveSettings();
         });
@@ -533,6 +687,8 @@
         });
 
         addSiteButton.addEventListener('click', addFavoriteSite);
+
+        resetButton.addEventListener('click', resetToDefaultSettings);
 
         // 初始化
         loadSettings();
