@@ -218,7 +218,6 @@
             <option value="wikipedia">Wikipedia</option>
             <option value="wz">中文维基百科</option>
             <option value="wzm">维基百科镜像</option>
-            <option value="baidu">百度（不推荐）</option>
             <option value="custom">自定义</option>
         </select>
 
@@ -531,9 +530,6 @@
             let searchUrl;
 
             switch (searchEngine.value) {
-                case 'baidu':
-                    searchUrl = `https://www.baidu.com/s?wd=${query}`;
-                    break;
                 case 'wz':
                     searchUrl = `https://zh.wikipedia.org/w/index.php?search=${query}`;
                     break;
