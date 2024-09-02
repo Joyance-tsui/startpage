@@ -27,9 +27,10 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: all 0.3s ease;
@@ -37,6 +38,7 @@
 
         #search-container {
             text-align: center;
+            margin-bottom: 20px;
         }
 
         #search-input {
@@ -103,6 +105,54 @@
             background-color: var(--blur-bg);
             z-index: -1;
         }
+
+        #favorite-sites {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .site-button {
+            margin: 5px;
+            padding: 10px;
+            background-color: var(--search-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .site-button:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        #favorite-sites-container {
+            margin-top: 20px;
+        }
+
+        #favorite-sites-container label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        #favorite-sites-container input {
+            width: calc(50% - 5px);
+            margin-right: 5px;
+        }
+
+        #add-site-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 5px;
+            background-color: var(--search-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -110,6 +160,7 @@
         <div id="search-container">
             <input type="text" id="search-input" placeholder="搜索...">
         </div>
+        <div id="favorite-sites"></div>
     </div>
 
     <div id="settings-button">☰</div>
@@ -147,7 +198,19 @@
         </select>
 
         <label for="search-size">搜索框大小：</label>
-        <input type="range" id="search-size" min="200" max="1000" step="10" value="500">
+        <input type="range" id="search-size" min="100" max="1000" step="10" value="500">
+
+        <label for="fullscreen">全屏模式：</label>
+        <input type="checkbox" id="fullscreen">
+
+        <div id="favorite-sites-container">
+            <h3>常用网站</h3>
+            <label for="site-name">网站名称：</label>
+            <input type="text" id="site-name">
+            <label for="site-url">网站 URL：</label>
+            <input type="text" id="site-url">
+            <button id="add-site-button">添加网站</button>
+        </div>
     </div>
 
     <script>
@@ -161,6 +224,11 @@
         const language = document.getElementById('language');
         const theme = document.getElementById('theme');
         const searchSize = document.getElementById('search-size');
+        const fullscreenCheckbox = document.getElementById('fullscreen');
+        const favoriteSites = document.getElementById('favorite-sites');
+        const siteName = document.getElementById('site-name');
+        const siteUrl = document.getElementById('site-url');
+        const addSiteButton = document.getElementById('add-site-button');
 
         // 加载保存的设置
         function loadSettings() {
@@ -170,11 +238,14 @@
             language.value = savedSettings.language || 'zh-CN';
             theme.value = savedSettings.theme || 'light';
             searchSize.value = savedSettings.searchSize || '500';
+            fullscreenCheckbox.checked = savedSettings.fullscreen || false;
 
             updateCustomSearchVisibility();
             applyTheme();
             applySearchSize();
             applyLanguage();
+            applyFullscreen();
+            loadFavoriteSites();
         }
 
         // 保存设置
@@ -184,7 +255,8 @@
                 customSearchUrl: customSearchUrl.value,
                 language: language.value,
                 theme: theme.value,
-                searchSize: searchSize.value
+                searchSize: searchSize.value,
+                fullscreen: fullscreenCheckbox.checked
             };
             localStorage.setItem('startPageSettings', JSON.stringify(settings));
         }
@@ -223,6 +295,15 @@
             updateInterfaceText();
         }
 
+        // 应用全屏模式
+        function applyFullscreen() {
+            if (fullscreenCheckbox.checked) {
+                document.documentElement.requestFullscreen();
+            } else if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        }
+
         // 更新界面文本
         function updateInterfaceText() {
             const texts = {
@@ -235,7 +316,12 @@
                     theme: '主题：',
                     lightMode: '亮色模式',
                     darkMode: '暗色模式',
-                    searchSize: '搜索框大小：'
+                    searchSize: '搜索框大小：',
+                    fullscreen: '全屏模式：',
+                    favoriteSites: '常用网站',
+                    siteName: '网站名称：',
+                    siteUrl: '网站 URL：',
+                    addSite: '添加网站'
                 },
                 'en': {
                     searchPlaceholder: 'Search...',
@@ -246,7 +332,12 @@
                     theme: 'Theme:',
                     lightMode: 'Light Mode',
                     darkMode: 'Dark Mode',
-                    searchSize: 'Search Box Size:'
+                    searchSize: 'Search Box Size:',
+                    fullscreen: 'Fullscreen Mode:',
+                    favoriteSites: 'Favorite Sites',
+                    siteName: 'Site Name:',
+                    siteUrl: 'Site URL:',
+                    addSite: 'Add Site'
                 },
                 'fr': {
                     searchPlaceholder: 'Rechercher...',
@@ -257,7 +348,12 @@
                     theme: 'Thème :',
                     lightMode: 'Mode clair',
                     darkMode: 'Mode sombre',
-                    searchSize: 'Taille de la barre de recherche :'
+                    searchSize: 'Taille de la barre de recherche :',
+                    fullscreen: 'Mode plein écran :',
+                    favoriteSites: 'Sites favoris',
+                    siteName: 'Nom du site :',
+                    siteUrl: 'URL du site :',
+                    addSite: 'Ajouter un site'
                 }
             };
 
@@ -271,6 +367,11 @@
             document.querySelector('label[for="language"]').textContent = t.language;
             document.querySelector('label[for="theme"]').textContent = t.theme;
             document.querySelector('label[for="search-size"]').textContent = t.searchSize;
+            document.querySelector('label[for="fullscreen"]').textContent = t.fullscreen;
+            document.querySelector('#favorite-sites-container h3').textContent = t.favoriteSites;
+            document.querySelector('label[for="site-name"]').textContent = t.siteName;
+            document.querySelector('label[for="site-url"]').textContent = t.siteUrl;
+            addSiteButton.textContent = t.addSite;
 
             const themeOptions = document.querySelectorAll('#theme option');
             themeOptions[0].textContent = t.lightMode;
@@ -312,6 +413,33 @@
             window.location.href = searchUrl;
         }
 
+        // 加载常用网站
+        function loadFavoriteSites() {
+            const sites = JSON.parse(localStorage.getItem('favoriteSites')) || [];
+            favoriteSites.innerHTML = '';
+            sites.forEach(site => {
+                const button = document.createElement('button');
+                button.textContent = site.name;
+                button.className = 'site-button';
+                button.addEventListener('click', () => window.location.href = site.url);
+                favoriteSites.appendChild(button);
+            });
+        }
+
+        // 添加常用网站
+        function addFavoriteSite() {
+            const name = siteName.value.trim();
+            const url = siteUrl.value.trim();
+            if (name && url) {
+                const sites = JSON.parse(localStorage.getItem('favoriteSites')) || [];
+                sites.push({ name, url });
+                localStorage.setItem('favoriteSites', JSON.stringify(sites));
+                loadFavoriteSites();
+                siteName.value = '';
+                siteUrl.value = '';
+            }
+        }
+
         // 事件监听器
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -351,6 +479,13 @@
             applySearchSize();
             saveSettings();
         });
+
+        fullscreenCheckbox.addEventListener('change', () => {
+            applyFullscreen();
+            saveSettings();
+        });
+
+        addSiteButton.addEventListener('click', addFavoriteSite);
 
         // 初始化
         loadSettings();
