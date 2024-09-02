@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>起始页</title>
+    <title>startpage</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -367,8 +367,8 @@
         fetch('https://ipapi.co/json/')
             .then(response => response.json())
             .then(data => {
-                // 检查国家代码是否为 CN（中国）
-                resolve(data.country === 'CN');
+                resolve(data.country_code === 'CN');
+                resolve(ture);
             })
             .catch(error => {
                 console.error('IP 地理位置检测失败:', error);
