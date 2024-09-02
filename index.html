@@ -359,29 +359,26 @@
 
         // 获取默认搜索引擎
         function getDefaultSearchEngine() {
-            return isInChina() ? 'dm' : 'duckduckgo';
+            return isInChina() ? 'baidu' : 'duckduckgo';
         }
-        
-function isInChina() {
-  return new Promise((resolve, reject) => {
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => {
-        const ip = data.ip;
-        return fetch(`https://ipapi.co/${ip}/json/`);
-      })
-      .then(response => response.json())
-      .then(data => {
-        const country = data.country_name;
-        const isChina = country === 'China';
-        resolve(isChina);
-      })
-      .catch(error => {
-        console.error('Error detecting location:', error);
-        reject(error);
-      });
-  });
-}
+
+        // 检查是否在中国大陆
+        function isInChina() {
+            return new Promise((resolve) => {
+                fetch('https://cloudflare.com/cdn-cgi/trace')
+                    .then(response => response.text())
+                    .then(data => {
+                        const lines = data.split('\n');
+                        const loc = lines.find(line => line.startsWith('loc='));
+                        const countryCode = loc ? loc.split('=')[1] : '';
+                        resolve(countryCode === 'CN');
+                    })
+                    .catch(() => {
+                        // 如果请求失败，默认不在中国
+                        resolve(false);
+                    });
+            });
+        }
 
         // 更新自定义搜索 URL 输入框的可见性
         function updateCustomSearchVisibility() {
